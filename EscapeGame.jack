@@ -1,0 +1,316 @@
+class EscapeGame{
+    
+    field Array levels;
+    field Level currentLevel;
+    field int levelNumber;
+    
+    constructor EscapeGame new (){
+        return this;
+    }
+
+    method void dispose(){
+        do currentLevel.dispose();
+        return;
+    }
+
+    method void start(){
+        do createLevels();
+        do menu();
+        return;
+    }
+
+    /* Print the main game menu and
+     * start the game loop */
+    method void menu(){
+        
+        var int opt;
+        var int lvl;
+        var boolean win;
+
+        let opt = 0;
+        while(~(opt = 2)){
+            do printMainMenu();
+            let opt = Keyboard.readInt("");
+            if(opt = 1){
+                let lvl = 0;
+                let win = true;
+                while(win & (lvl < levelNumber) ){
+                    do printLevelMenu(lvl+1); 
+                    let currentLevel = levels[lvl];
+                    do drawLevel(currentLevel);
+                    /* Game Loop */
+                    let win = gameLoop();
+                    if(win){
+                        let lvl = lvl + 1;
+                    }else{
+                        /* Lost : reset all levels */
+                        do currentLevel.dispose();
+                        do createLevels();
+                    }
+                }
+                /* Game is finished : reset all levels */
+                do currentLevel.dispose();
+                do createLevels();
+            }
+        }
+        return;
+    }
+
+    method void printLevelMenu(int lvlIndex){
+        var String integers;
+        var Char lvlchar;
+        var String toPrint;
+
+        let integers = "0123456789";
+        let toPrint = "Level  ";
+        let lvlchar = integers.charAt(lvlIndex);
+        do toPrint.setCharAt(6,lvlchar);
+
+        do Screen.clearScreen();
+        do Utils.centerPrint(toPrint,10);
+        do Output.moveCursor(12,20);
+        do Keyboard.readLine("Press any key to start");
+        return;
+    }
+
+    method void printMainMenu(){
+        do Screen.clearScreen();
+        do Utils.centerPrint("Menu", 3);
+        do Utils.centerPrint("1- Play", 5);
+        do Utils.centerPrint("2- Exit", 6);
+        do Utils.centerPrint("(Press 1 or 2 then Enter)", 9);
+        do Output.moveCursor(12,31);
+        return;
+    }
+
+
+    method boolean gameLoop(){
+        
+        var boolean win;
+
+        /* Game loop variables declaration*/
+        var char key;
+        var boolean exit;
+        var int i;
+        var Predator workingPred;
+        
+        /* Level variables declaration*/
+        var int predCnt;
+        var Array predators;
+        var Array predCounter; // take notes of the predator movement
+        var Prey prey;
+
+        /* Level variables initialization*/
+        let predCnt = currentLevel.getPredCount();
+        let predators = currentLevel.getPredators();
+        let predCounter = currentLevel.getpredsCounters();
+        let prey = currentLevel.getPrey();
+
+        let exit = false;
+        while (~exit){
+            let key = Keyboard.keyPressed();
+            if (key = 81){ let exit = true;}
+            if (key = 131){ do prey.moveUp();}
+            if (key = 132){ do prey.moveRight(); }
+            if (key = 133){ do prey.moveDown(); }
+            if (key = 130){ do prey.moveLeft(); }
+            
+            /* Loop throught predators */
+            let i = 0;
+            while (i < predCnt){
+                let workingPred = predators[i];
+                /* Move workingPred if counter reached ; then reinitialize */
+                if(predCounter[i] > 10){
+                    do workingPred.moveTo(prey);
+                    let predCounter[i] = 0;
+                }
+                /* Increment their counter*/
+                let predCounter[i] = predCounter[i] + workingPred.getSpeed();
+                
+                /* Check lost condition */
+                if(Utils.intersectPreyPred(prey, workingPred)){
+                    do Output.moveCursor(22,29);
+                    do Output.printString("LOST!");
+                    do Sys.wait(2000);
+                    let win = false;
+                    let exit = true;
+                }
+
+                let i = i + 1;
+            }
+            /* Check win condition */
+            if(Utils.intersectCircleRect(prey.getLocation(), prey.getRadius(), 5*16,0,16)){
+                do Output.moveCursor(22,30);
+                do Output.printString("WIN!");
+                do Sys.wait(2000);
+                let win = true;                
+                let exit = true;
+            }
+
+            do Sys.wait(10); // delays next movement
+       }
+       return win;
+    }
+
+    /** Initialize Declare and create Objects for all levels */
+    method void createLevels(){
+        
+        var Prey prey1;
+        var Array predators1;
+        var Array predCounter1;
+        var int predCnt1;
+        var Level level1;
+
+        var Prey prey2;
+        var Array predators2;
+        var Array predCounter2;
+        var int predCnt2;
+        var Level level2;
+
+        var Prey prey3;
+        var Array predators3;
+        var Array predCounter3;
+        var int predCnt3;
+        var Level level3;
+
+        var Prey prey4;
+        var Array predators4;
+        var Array predCounter4;
+        var int predCnt4;
+        var Level level4;
+
+        var Prey prey5;
+        var Array predators5;
+        var Array predCounter5;
+        var int predCnt5;
+        var Level level5;
+
+        let levelNumber = 5;
+        let levels = Array.new(levelNumber);
+
+        /* Level 1 */
+        let prey1 = Prey.new(256, 200, 10);
+        let predCnt1 = 2;
+        let predators1 = Array.new(predCnt1);
+        let predCounter1 = Array.new(predCnt1);
+        let predators1[0] = Predator.new(300, 50, 70, 1);
+        let predators1[1] = Predator.new(100, 50, 20, 2);
+        let predCounter1[0] = 0;
+        let predCounter1[1] = 0;
+        let level1 = Level.new(prey1, predators1, predCounter1, predCnt1);
+        
+        /* Level 2 */
+        let prey2 = Prey.new(256, 200, 10);
+        let predCnt2 = 2;
+        let predators2 = Array.new(predCnt2);
+        let predCounter2 = Array.new(predCnt2);
+        let predators2[0] = Predator.new(300, 100, 20, 2);
+        let predators2[1] = Predator.new(100, 50, 20, 2);
+        let predCounter2[0] = 0;
+        let predCounter2[1] = 0;
+        let level2 = Level.new(prey2, predators2, predCounter2, predCnt2);
+        
+        /* Level 3 */
+        let prey3 = Prey.new(256, 200, 15);
+        let predCnt3 = 3;
+        let predators3 = Array.new(predCnt3);
+        let predCounter3 = Array.new(predCnt3);
+        let predators3[0] = Predator.new(300, 100, 20, 2);
+        let predators3[1] = Predator.new(400, 200, 30, 2);
+        let predators3[2] = Predator.new(120, 50, 60, 2);
+        let predCounter3[0] = 0;
+        let predCounter3[1] = 0;
+        let predCounter3[2] = 0;
+        let level3 = Level.new(prey3, predators3, predCounter3, predCnt3);
+        
+        /* Level 4 */
+        let prey4 = Prey.new(256, 200, 10);
+        let predCnt4 = 3;
+        let predators4 = Array.new(predCnt4);
+        let predCounter4 = Array.new(predCnt4);
+        let predators4[0] = Predator.new(300, 100, 20, 2);
+        let predators4[1] = Predator.new(400, 200, 30, 2);
+        let predators4[2] = Predator.new(100, 50, 60, 2);
+        let predCounter4[0] = 0;
+        let predCounter4[1] = 0;
+        let predCounter4[2] = 0;
+        let level4 = Level.new(prey4, predators4, predCounter4, predCnt4);
+
+        /* Level 5 */
+        let prey5 = Prey.new(256, 200, 10);
+        let predCnt5 = 2;
+        let predators5 = Array.new(predCnt1);
+        let predCounter5 = Array.new(predCnt1);
+        let predators5[0] = Predator.new(350, 50, 70, 1);
+        let predators5[1] = Predator.new(100, 50, 70, 2);
+        let predCounter1[0] = 0;
+        let predCounter1[1] = 0;
+        let level5 = Level.new(prey5, predators5, predCounter5, predCnt5);
+
+
+        let levels[0] = level1;
+        let levels[1] = level2;
+        let levels[2] = level3;
+        let levels[3] = level4;
+        let levels[4] = level5;
+
+        return;
+    }
+
+    method void drawLevel(Level level){
+        
+        var Prey prey;
+        var int predCnt;
+        var Array predators;
+        var Array predCounter;
+        var Predator workingPred;
+        var int i;
+        
+        /* Clear previous screen */
+        do Screen.clearScreen();
+
+        /* Draw goal, prey */
+        let prey = level.getPrey();
+        do prey.draw();
+        do drawGoal(5);
+
+        /* Draw predators and initialize their counter */
+        let predators =  level.getPredators();
+        let predCounter = level.getpredsCounters();
+        let predCnt = level.getPredCount();
+        let i = 0;
+        
+        
+        while (i < predCnt){
+            let predCounter[i] = 0; 
+            let workingPred = predators[i];
+            do workingPred.draw();
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    method void drawGoal(int location) {
+        var int memAddress;
+	    let memAddress = 16384+location;
+	    do Memory.poke(memAddress+0, -21846);
+	    do Memory.poke(memAddress+32, 21845);
+	    do Memory.poke(memAddress+64, -21846);
+	    do Memory.poke(memAddress+96, 21845);
+	    do Memory.poke(memAddress+128, -21846);
+	    do Memory.poke(memAddress+160, 21845);
+	    do Memory.poke(memAddress+192, -21846);
+	    do Memory.poke(memAddress+224, 21845);
+	    do Memory.poke(memAddress+256, -21846);
+	    do Memory.poke(memAddress+288, 21845);
+	    do Memory.poke(memAddress+320, -21846);
+	    do Memory.poke(memAddress+352, 21845);
+	    do Memory.poke(memAddress+384, -21846);
+	    do Memory.poke(memAddress+416, 21845);
+	    do Memory.poke(memAddress+448, -21846);
+	    do Memory.poke(memAddress+480, 21845);
+	    return;
+    }
+ 
+}

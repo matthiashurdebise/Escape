@@ -1,0 +1,223 @@
+/**
+*   This class contains miscellaneous utility functions
+*/
+class Utils {
+    
+    /**
+    *  Mathematical functions
+    */
+
+    /* Return greatest common divisor */
+    function int gcd (int a, int b){
+        var int r;
+        while (~(b = 0)){
+            let r = Utils.modulo(a, b);
+            let a = b;
+            let b = r;
+        }
+        return a;
+    }
+
+    /* Return a modulo b */
+    function int modulo(int a, int b){
+        return a - (b * (a / b));
+    }
+
+    /* Return absolute value */
+    function int abs(int x){
+        if (x > 0){
+            return x;
+        }else {
+            return (0 - x);
+        }
+    }
+
+    /**
+        Geometrical functions
+    */
+    
+    /* Return delta X between two Points*/
+    function int getDeltaX(Point A, Point B){return Utils.abs(Utils.getDiffX(A,B));}
+    
+    /* Return delta Y between two Points*/
+    function int getDeltaY(Point A, Point B){return Utils.abs(Utils.getDiffY(A,B));}
+
+    /* Return X difference between two Points*/
+    function int getDiffX(Point A, Point B){ return A.getX() - B.getX();}
+
+    /* Return Y difference between two Points*/
+    function int getDiffY(Point A, Point B){return A.getY() - B.getY();}
+
+    /* Return distiance between two Points*/
+    function int distance(Point A, Point B){
+        var int distance;
+        var int dySquared;
+        var int dxSquared;
+        var int dx;
+        var int dy;
+        
+        let dy = Utils.getDeltaY(A, B);
+        let dx = Utils.getDeltaX(A, B);
+
+        if((dx > 100) |( dy > 100)){
+            return 999; // dx gets to high for 16bit integer
+        }else{
+            let dxSquared = dx*dx;
+        }
+        
+        let dySquared = dy*dy;
+        let distance = Math.sqrt(dySquared + dxSquared);
+        return distance;
+    }
+
+    /* Return true of false wether Point W stand within orthogonal projections of AB */
+    function boolean within(Point W, Point p1, Point p2){
+        
+        var boolean within;
+        let within = false; 
+        if(
+            ((W.getX() > p1.getX()) & (W.getX() < p2.getX())) |
+            ((W.getY() > p1.getY()) & (W.getY() < p2.getY())) |
+            ((W.getX() < p1.getX()) & (W.getX() > p2.getX())) |
+            ((W.getY() < p1.getY()) & (W.getY() > p2.getY())) 
+            ){
+            let within = true;
+        }
+
+        return within;      
+    }
+
+    /* Return true if the circle (center, radius) intersect the square (x, y, size) */
+    function boolean intersectCircleRect(Point center, int radius, int x, int y, int size){
+        var boolean intersect;
+        var Point a, b, c, d;
+        let a = Point.new(x, y);
+        let b = Point.new(x+size,y);
+        let c = Point.new(x+size, y+size);
+        let d = Point.new(x,y+size);
+
+        let intersect = Utils.intersectCircle(center, radius, a, b) |
+                 Utils.intersectCircle(center, radius, b, c) |
+                 Utils.intersectCircle(center, radius, c, d) |
+                 Utils.intersectCircle(center, radius, d, a) ;
+
+        do Memory.deAlloc(a);   
+        do Memory.deAlloc(b);   
+        do Memory.deAlloc(c);   
+        do Memory.deAlloc(d);   
+
+        return intersect;
+        
+    }
+
+    /* Return true if the Prey intersect the Predator */
+    function boolean intersectPreyPred(Prey prey, Predator predator){
+        
+        var int radius;
+        var Point center, a, b, c, d;
+        var boolean intersect;
+        
+        let radius = prey.getRadius();
+        let center = prey.getLocation();
+        let a = predator.getAVertex();
+        let b = predator.getBVertex();
+        let c = predator.getCVertex();
+        let d = predator.getDVertex();
+
+        let intersect = 
+                 Utils.intersectCircle(center, radius, a, b) |
+                 Utils.intersectCircle(center, radius, b, c) |
+                 Utils.intersectCircle(center, radius, c, d) |  
+                 Utils.intersectCircle(center, radius, d, a) ; 
+
+        do Memory.deAlloc(a);   
+        do Memory.deAlloc(b);   
+        do Memory.deAlloc(c);   
+        do Memory.deAlloc(d);   
+
+        return intersect;
+        
+    }
+
+    /* Return true if the circle (center, radius) intersect the segment (p1, p2) */
+    function boolean intersectCircle(Point center, int radius, Point p1, Point p2){
+        
+        var boolean intersect;
+        var Point foot;
+        var int distance;
+        let intersect = false;
+ 
+        if(Utils.within(center, p1, p2)){
+            let foot = Utils.perpendicularFoot(p1, p2, center);
+            let distance = Utils.distance(center, foot);
+
+            if(distance < radius){
+                let intersect = true;
+            }
+            do foot.dispose();
+        }else{
+            if ((Utils.distance(center, p1) < radius) |
+                (Utils.distance(center, p2) < radius) ){
+                    let intersect = true;
+                }
+        }
+
+        return intersect;
+    }
+
+    /* Return the perpendicular foot from C to AB */
+    function Point perpendicularFoot(Point A, Point B, Point C){
+        
+        var Point foot;
+        
+        if (A.getY() = B.getY()){ // AB is horizontal
+            let foot = Point.new(C.getX(), A.getY());
+        }else{  // AB is vertical
+            if(A.getX() = B.getX()){
+                let foot = Point.new(A.getX(), C.getY());
+            }else{
+                do Utils.logPoint(A,"A");
+                do Utils.logPoint(B,"B");
+                do Sys.error(333);
+            }
+        }
+        
+        return foot;
+    }
+
+
+    /**
+        Output functions
+    */    
+
+    /* Print String in the middle of the specified row index */
+    function void centerPrint(String str, int irow){
+        var int len;
+        var int index;
+        let len = str.length();
+        let index = 31 - (len/2);
+        do Output.moveCursor(irow,index);
+        do Output.printString(str);
+        return;
+    }
+   
+    /* Log a point (debug purpose) */
+    function void logPoint (Point a, String name){
+        do Output.printString(name);
+        do Output.printString(" X :");
+        do Output.printInt(a.getX());
+        do Output.printString(" Y :");
+        do Output.printInt(a.getY());
+        do Output.println();
+        return;
+    }
+
+    /* Log a String (debug purpose) */
+    function void log(String str){
+        do Output.moveCursor(10,0);
+        do Output.printString(str);
+        do Sys.wait(2000);
+        return;
+    }
+
+}

@@ -1,0 +1,105 @@
+/** Implement a moving graphical dot **/
+class Prey {
+    
+    field Point location; // coordinates
+    field int radius; // radius size
+
+    constructor Prey new (int x, int y, int radiusP){
+        let location = Point.new(x, y);
+        let radius = radiusP;
+        return this;
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void draw(){
+        do Screen.setColor(true);
+        do Screen.drawCircle(getX(), getY(), radius);
+        return;
+    }
+
+    method void moveLeft(){
+
+        if( getX() > (radius + 1)){
+            do Screen.setColor(false);
+            do Screen.drawCircle(getX(), getY(), radius);
+            do setXLocation(getX() - 2);
+            do Screen.setColor(true);
+            do Screen.drawCircle(getX(), getY(), radius);
+        }
+        return;
+    }
+
+    method void moveUp(){
+        
+        if( getY() > (radius + 1) ){
+            do Screen.setColor(false);
+            do Screen.drawCircle(getX(), getY(), radius);
+            do setYLocation(getY()- 2);
+            do Screen.setColor(true);
+            do Screen.drawCircle(getX(), getY(), radius);
+        }
+        return;
+    }    
+    
+    method void moveRight(){
+      
+        var int extremPoint;
+        let extremPoint = radius + getX();
+
+        if( extremPoint < 510 ){
+            do Screen.setColor(false);
+            do Screen.drawCircle(getX(), getY(), radius);
+            do setXLocation(getX() + 2);
+            do Screen.setColor(true);
+            do Screen.drawCircle(getX(), getY(), radius);
+        }
+        return;
+    }
+
+    method void moveDown(){
+                
+        if( (getY() + radius) < 254 ){
+            do Screen.setColor(false);
+            do Screen.drawCircle(getX(), getY(), radius);
+            do setYLocation(getY()+2);
+            do Screen.setColor(true);
+            do Screen.drawCircle(getX(), getY(), radius);
+        }
+        return;
+    }
+
+    method Point getLocation(){
+        return location;
+    }
+
+    method int getRadius(){
+        return radius;
+    }
+
+    method int getX(){
+        return location.getX();
+    }
+
+    method int getY(){
+        return location.getY();
+    }
+
+    method void setYLocation(int y){
+        let location = Point.new(location.getX(), y);
+        return;
+    }
+
+    method void setXLocation(int x){
+        let location = Point.new(x, location.getY());
+        return;
+    }
+
+    method void setLocation (Point p){
+        let location = Point.new(p.getX(), p.getY());
+        return;
+    }
+}  

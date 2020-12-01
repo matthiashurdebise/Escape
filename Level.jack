@@ -1,0 +1,39 @@
+class Level {
+    
+    field Prey prey; // you, trying to escape
+    field Array predators; // Array of predators
+    field Array predsCounters; // Predators 's counter. When the counter reach 10, the predator moves
+    field int predCnt; // Number of predators
+
+
+    constructor Level new (Prey preyP, Array predatorsP, Array predsCountersP, int size){
+        let prey = preyP;
+        let predators = predatorsP;
+        let predsCounters = predsCountersP;
+        let predCnt = size;
+        return this;
+    }
+
+    method void dispose(){
+        do prey.dispose();
+        do predators.dispose();
+        do predsCounters.dispose();
+        return;
+    }
+
+    method Array getPredators(){
+        return predators;
+    }
+
+    method int getPredCount(){
+        return predCnt;
+    }
+
+    method Array getpredsCounters(){
+        return predsCounters;
+    }
+
+    method Prey getPrey(){
+        return prey;
+    }
+}

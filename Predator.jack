@@ -1,0 +1,156 @@
+class Predator {
+
+    field Point location; // x,y coordinates
+    field int size;  // area of the predator
+    field int speed; // Step at which the predator reach the Predator 's Counter ; it affects how fast the predator moves
+
+    constructor Predator new (int x, int y, int sizeP, int speedP){
+        let location = Point.new(x, y);
+        let size = sizeP;
+        let speed = speedP;
+        return this;
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void draw(){
+        var Point A, C;
+        let A = getAVertex();
+        let C = getCVertex();
+        do Screen.setColor(true);
+        do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+        return;
+    }
+
+    method Point getAVertex(){
+        return Point.new(location.getX(), location.getY());
+    }
+
+    method Point getBVertex(){
+        return Point.new(location.getX() + size, location.getY());
+    }
+
+    method Point getCVertex(){
+        return Point.new(location.getX() + size, location.getY() + size);
+    }
+
+    method Point getDVertex(){
+        return Point.new(location.getX(), location.getY() + size);
+    }
+    
+    /* The predator move 5px to the prey */
+    method void moveTo(Prey prey){
+        var int steps;
+
+        var int deltaX;
+        var int deltaY;
+        var int diffX;
+        var int diffY;
+
+        let steps = 5;
+    
+        let diffX = Utils.getDiffX(prey.getLocation(), location);
+        let diffY = Utils.getDiffY(prey.getLocation(), location);
+        
+        let deltaX = Utils.getDeltaX(prey.getLocation(), location);
+        let deltaY = Utils.getDeltaY(prey.getLocation(), location);
+
+        
+        if(deltaX > deltaY){
+            if(diffX < 0){
+                do moveLeft(steps);
+            }else{
+                do moveRight(steps);
+            }
+        }else{
+            if(deltaX < deltaY){
+                if(diffY < 0){
+                    do moveUp(steps);
+                }else{
+                    do moveDown(steps);
+                } 
+            }else{
+                /* to avoid the predator being
+                stuck in a mini-loop */
+                do moveRight(steps/2);
+            }
+        }
+
+        return;
+        
+    }
+
+    method void moveUp(int steps){     
+       
+        if (getY() > steps){
+            do Screen.setColor(false);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+            do setYLocation(getY() - steps);
+            do Screen.setColor(true);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+        }
+        return;
+    }
+
+    method void moveRight(int steps){       
+        
+        if ((getX() + size + steps) < 511 ){
+            do Screen.setColor(false);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+            do setXLocation(getX() + steps);
+            do Screen.setColor(true);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+        }
+        return;
+    }
+
+    method void moveDown(int steps){     
+
+        if ((getY() + size + steps) < 255){
+            do Screen.setColor(false);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+            do setYLocation(getY() + steps);
+            do Screen.setColor(true);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+        }
+        return;
+    }
+
+    method void moveLeft(int steps){        
+
+        if (getX() > steps){
+            do Screen.setColor(false);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+            do setXLocation(getX() - steps);
+            do Screen.setColor(true);
+            do Screen.drawRectangle(getX(), getY(), getX() + size, getY()+ size);
+        }
+        return;
+    }
+
+    method void setYLocation(int y){
+        let location = Point.new(getX(), y);
+        return;
+    }
+
+    method void setXLocation(int x){
+        let location = Point.new(x, getY());
+        return;
+    }
+
+    method int getX(){
+        return location.getX();
+    }
+
+    method int getY(){
+        return location.getY();
+    }
+
+    method int getSpeed(){
+        return speed;
+    }
+
+}
